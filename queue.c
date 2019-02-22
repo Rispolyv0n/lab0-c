@@ -40,8 +40,9 @@ void q_free(queue_t *q)
     /* How about freeing the list elements and the strings? */
     if (q) {
         list_ele_t *ele = q->head;
+        list_ele_t *tmp;
         while (ele) {
-            list_ele_t *tmp = ele;
+            tmp = ele;
             ele = ele->next;
             free(tmp->value);
             free(tmp);
@@ -106,6 +107,7 @@ bool q_insert_tail(queue_t *q, char *s)
             if (newh->value) {
                 memset(newh->value, '\0', strlen(s) + 1);
                 strcpy(newh->value, s);
+
                 newh->next = NULL;
                 if (q->tail)
                     q->tail->next = newh;
@@ -133,8 +135,10 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
     /* You need to fix up this code. */
     if (q && q->size > 0) {
-        strncpy(sp, q->head->value, bufsize - 1);
-        sp[bufsize - 1] = '\0';
+        if (sp) {
+            strncpy(sp, q->head->value, bufsize - 1);
+            sp[bufsize - 1] = '\0';
+        }
         list_ele_t *tmp = q->head;
         q->head = q->head->next;
         free(tmp->value);
@@ -155,7 +159,10 @@ int q_size(queue_t *q)
 {
     /* You need to write the code for this function */
     /* Remember: It should operate in O(1) time */
-    return q->size;
+    if (q) {
+        return q->size;
+    }
+    return 0;
 }
 
 /*
@@ -168,4 +175,18 @@ int q_size(queue_t *q)
 void q_reverse(queue_t *q)
 {
     /* You need to write the code for this function */
+    if (q && q->size > 0) {
+        list_ele_t *cur = q->head;
+        list_ele_t *next = cur->next;
+        cur->next = NULL;
+        q->tail = cur;
+        list_ele_t *prev = cur;
+        while (next) {
+            cur = next;
+            next = next->next;
+            cur->next = prev;
+            prev = cur;
+        }
+        q->head = cur;
+    }
 }
